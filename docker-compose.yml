@@ -1,0 +1,78 @@
+version: "3.8"
+
+services:
+
+  # OPAL Server
+  opal-server:
+    image: permitio/opal-server:latest
+    container_name: opal_server
+    restart: unless-stopped
+
+    environment:
+      OPAL_POLICY_REPO_URL: "none"
+      OPAL_DATA_CONFIG_SOURCES: '{"config":{"entries":[]}}'
+      OPAL_AUTH_MASTER_TOKEN: "secret-token"
+      OPAL_AUTH_PUBLIC_KEY: "none"
+      OPAL_INSECURE_DISABLE_REGO_POLICY_VERIFICATION: "true"
+      UVICORN_NUM_WORKERS: "1"
+
+    ports:
+      - "9000:7002"
+
+  # OPA Policy Engine
+  opa:
+    image: openpolicyagent/opa:latest
+    container_name: opa_engine
+    restart: unless-stopped
+
+    command:
+      - run
+      - --server
+      - --addr=0.0.0.0:8181
+      - --log-level=info
+
+    ports:
+      - "8181:8181"
+
+    volumes:
+      - ./policies:/policies
+
+  # OPAL Client
+  opal-client:
+    image: permitio/opal-client:latest
+    container_name: opal_client
+    restart: unless-stopped
+
+    environment:
+      OPAL_SERVER_URL: "http://opal-server:7002"
+      OPAL_OPA_URL: "http://opa:8181"
+      OPAL_CLIENT_TOKEN: "secret-token"
+
+    depends_on:
+      - opa
+      - opal-server
+
+  # OCR + Gemini API
+  ocr-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: ocr_api
+    restart: unless-stopped
+
+    ports:
+      - "8000:8000"
+
+    env_file:
+      - .env
+
+    volumes:
+      - ./uploads:/uploads
+
+    depends_on:
+      - opa
+
+networks:
+  default:
+    name: ttb_network
