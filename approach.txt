@@ -1,0 +1,12 @@
+Approach:
+Reformatted requirements into a workflow.
+Using only free tier tools: 
+(Gemini, Opal, Chatgpt, Docker)
+Used Gemini and created an agent(GEM) to create prompts to prove process.
+Transferred to OPAL for eval.
+Downloaded test images of various quality to test OCR and applications.
+*.No checks where done to check if the images where alcoholic beverages. I didn’t see that as a requirement. I guess that could be included in error handling. 
+I tried to learn Docker as I went and I was able to create a working prototype that worked locally. I don’t have any other test environments. The dependencies in the Docker container should be able to work. 
+Moved container to GitHub. 
+Shared link is to the Gemini agent to show functionality. 
+I met most of the rules flushed out in the workflow. The Docker container does do API calls to Gemini to function currently. I’m not to savy with Docker and I was having problems getting the networking to work correctly. Perhaps with additional time and proper tools I could remedy that. 
